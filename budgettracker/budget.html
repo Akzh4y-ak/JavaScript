@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <link rel="stylesheet" href=".//budget.css">
+</head>
+<body>
+    <div id="container">
+        <h2 style="color: steelblue; font-family: cursive; font-weight: bold;">Personal Budget Manager</h2>
+        <input type="text" id="desc" placeholder="Description">
+        <input type="number" id="amount" placeholder="Amount">
+       <br><br> <select id="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+        </select>
+        <button id="addbutt" onclick="addTransaction()">Add Transaction</button>
+        <h3 style="color: rgb(98, 76, 245);">Balance: $<span id="balance">0</span></h3>
+        <button class="showbtn" onclick="filterTransactions('income')">Show Incomes</button>
+        <button class="showbtn" onclick="filterTransactions('expense')">Show Expenses</button>
+        <button class="showbtn" onclick="resetFilter()">Reset Filter</button>
+        <h4>Transactions</h4>
+        <div id="transactionList"></div>
+        </div>
+       
+    <script>
+   let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+   function addTransaction() {
+ let desc = document.getElementById("desc").value.trim();
+ let amount = parseFloat(document.getElementById("amount").value);
+ let type = document.getElementById("type").value;
+
+ if (!desc || isNaN(amount) || amount <= 0) {
+ alert("Please enter valid details.");
+ return;
+ }
+
+ let transaction = { id: Date.now(), desc, amount, type };
+ transactions.push(transaction);
+ localStorage.setItem("transactions",
+JSON.stringify(transactions));
+ updateUI();
+ document.getElementById("desc").value = "";
+ document.getElementById("amount").value = "";
+}
+function updateUI(filter = null) {
+ let transactionList = document.getElementById("transactionList");
+ let balanceSpan = document.getElementById("balance");
+ transactionList.innerHTML = "";
+
+ let filteredTransactions = filter ? transactions.filter(t =>
+t.type === filter) : transactions;
+
+ filteredTransactions.forEach(transaction => {
+ let div = document.createElement("div");
+ div.className = `transaction ${transaction.type}`;
+ div.innerHTML = `<strong>${transaction.desc}</strong> -
+$${transaction.amount}
+ <button class='edit-btn'
+onclick="editTransaction(${transaction.id})">Edit</button>
+ <button class='delete-btn'
+onclick="deleteTransaction(${transaction.id})">Delete</button>`;
+ transactionList.appendChild(div);
+ });
+
+ let balance = transactions.reduce((total, t) => total + (t.type === "income" ? t.amount : -t.amount), 0);
+ balanceSpan.textContent = balance.toFixed(2);
+}
+function editTransaction(id) {
+ let transaction = transactions.find(t => t.id === id);
+ if (transaction) {
+ let newDesc = prompt("Enter new description:",
+transaction.desc);
+ let newAmount = parseFloat(prompt("Enter new amount:",
+transaction.amount));
+ if (newDesc !== null && newDesc.trim() !== "" &&
+!isNaN(newAmount) && newAmount > 0) {
+ transaction.desc = newDesc.trim();
+ transaction.amount = newAmount;
+ localStorage.setItem("transactions",
+JSON.stringify(transactions));
+ updateUI();
+ } else {
+ alert("Invalid input.");
+ }
+ }
+ }
+ function filterTransactions(type) {
+ updateUI(type);
+ }
+ function resetFilter() {
+ updateUI();
+ }
+ function deleteTransaction(id) {
+ transactions = transactions.filter(t => t.id !== id);
+ localStorage.setItem("transactions",
+JSON.stringify(transactions));
+ updateUI();
+ }
+
+ document.addEventListener("DOMContentLoaded", () => updateUI());
+    </script>
+</body>
+</html>

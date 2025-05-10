@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Search App</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #222;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .search-box {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input, button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #ff4d4d;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        .random-btn {
+            background-color: #4da6ff;
+        }
+
+        #loading {
+            display: none;
+            font-size: 18px;
+            margin-top: 10px;
+            animation: fadeIn 0.5s ease-in-out infinite alternate;
+        }
+
+        .anime-card {
+            background-color: #333;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+
+        .anime-card:hover {
+            transform: translateY(-5px);
+        }
+
+        img {
+            width: 200px;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        img:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Anime Search</h1>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Enter anime name...">
+            <button onclick="searchAnime()">Search</button>
+            <button onclick="getRandomAnime()" class="random-btn">Random Anime</button>
+        </div>
+        <div id="loading">🔄 Loading...</div>
+        <div id="animeResults"></div>
+    </div>
+    <script>
+        async function searchAnime() {
+            const query = document.getElementById("searchInput").value;
+            if (!query) return alert("Please enter an anime name!");
+
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("animeResults").innerHTML = "";
+
+            const url = `https://api.jikan.moe/v4/anime?q=${query}&limit=3`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                document.getElementById("loading").style.display = "none";
+                
+                if (data.data.length > 0) {
+                    data.data.forEach(anime => {
+                        const animeCard = document.createElement("div");
+                        animeCard.classList.add("anime-card");
+                        animeCard.innerHTML = `
+                            <h2>${anime.title}</h2>
+                            <img src="${anime.images.jpg.image_url}" alt="${anime.title}">
+                            <p><strong>Episodes:</strong> ${anime.episodes}</p>
+                            <p><strong>Rating:</strong> ${anime.score}</p>
+                            <p>${anime.synopsis}</p>
+                        `;
+                        document.getElementById("animeResults").appendChild(animeCard);
+                    });
+                } else {
+                    document.getElementById("animeResults").innerHTML = "<p>No results found.</p>";
+                }
+            } catch (error) {
+                console.error("Error fetching anime:", error);
+                alert("Failed to fetch anime. Try again later.");
+            }
+        }
+
+        async function getRandomAnime() {
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("animeResults").innerHTML = "";
+
+            const url = "https://api.jikan.moe/v4/random/anime";
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                document.getElementById("loading").style.display = "none";
+
+                const anime = data.data;
+                const animeCard = document.createElement("div");
+                animeCard.classList.add("anime-card");
+                animeCard.innerHTML = `
+                    <h2>${anime.title}</h2>
+                    <img src="${anime.images.jpg.image_url}" alt="${anime.title}">
+                    <p><strong>Episodes:</strong> ${anime.episodes}</p>
+                    <p><strong>Rating:</strong> ${anime.score}</p>
+                    <p>${anime.synopsis}</p>
+                `;
+                document.getElementById("animeResults").appendChild(animeCard);
+            } catch (error) {
+                console.error("Error fetching random anime:", error);
+                alert("Failed to fetch random anime. Try again later.");
+            }
+        }
+    </script>
+</body>
+</html>

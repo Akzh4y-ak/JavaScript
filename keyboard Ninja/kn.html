@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Keyboard Ninja</title>
+  <link rel="stylesheet" href="kn.css" />
+</head>
+<body>
+  <div class="game-container">
+    <h1>🎮 Keyboard Ninja</h1>
+    <div class="stats">
+      <span id="score">Score: 0</span>
+      <span id="lives">Lives: 3</span>
+    </div>
+    <div id="game"></div>
+    <div id="gameOver" class="hidden">
+      <h2>Game Over 💀</h2>
+      <p>Your final score: <span id="finalScore">0</span></p>
+      <button onclick="restartGame()">Restart</button>
+    </div>
+  </div>
+  <script src="kn.js"></script>
+</body>
+</html>
